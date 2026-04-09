@@ -67,11 +67,8 @@ def update_background(weather_main):
         bg_file = 'thunder.gif'
     elif 'tornado' in weather_main.lower():
         bg_file = 'rainy.gif'
-    elif is_night:
-        bg_file = 'night1.gif'
-    else:
+    elif 'sun' in weather_main.lower():
         bg_file = 'sunlight.gif'
-
     img_path = os.path.join("icons", bg_file)
 
     if 'bg_animation' in globals() and bg_animation:
