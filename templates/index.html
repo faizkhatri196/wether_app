@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌎 Smart Weather App v5.0 - Ultra Advanced</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Consolas&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body id="app-body">
+
+    <!-- Background video/image container -->
+    <div id="sky-gradient"></div>
+    <div id="sky-elements">
+        <div id="sun" class="celestial hidden"></div>
+        <div id="moon" class="celestial hidden"></div>
+    </div>
+    <div id="bg-layer" class="blend-mode-layer">
+        <canvas id="particle-canvas"></canvas>
+        <img id="bg-image" src="/icons/NIght (1).gif" alt="Background">
+    </div>
+
+    <div class="wrapper">
+        <header class="top-bar glass">
+            <div id="time-display" class="time-label">01 January 2026 // 12:00:00</div>
+            <div class="search-frame" style="position: relative;">
+                <input type="text" id="city-input" placeholder="Enter or select city" autocomplete="off">
+                <ul id="custom-suggestions" class="dropdown hidden"></ul>
+                <button id="search-btn" class="hover-btn primary-btn">SEARCH</button>
+                <button id="location-btn" class="hover-btn icon-btn">📍</button>
+            </div>
+        </header>
+
+        <main class="main-container">
+            <div id="left-panel" class="panel glass sliding-panel slide-down">
+                <div class="panel-inner">
+                    <h1 id="city-name" class="glow-text">Awaiting Interface...</h1>
+                    <div id="temperature" class="temp-display">--°</div>
+                    <div id="description" class="desc-text">Please initiate search scan</div>
+
+                    <div class="details-box">
+                        <pre id="details-text" class="mono-text">
+THERMAL SENS:    --°C
+ATMOS HUMIDITY:  --%
+WIND VELOCITY:   -- m/s
+BARO PRESSURE:   -- hPa
+VISIBILITY:      -- km
+
+ASTRAL DAWN:     --:-- --
+ASTRAL DUSK:     --:-- --
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="right-panel" class="panel glass sliding-panel slide-down">
+                <div class="panel-inner chart-inner">
+                    <h2 class="chart-title glow-text tracking">T R E N D A N A L Y S I S</h2>
+                    <div class="canvas-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- WeatherBot Chat Widget -->
+    <div id="chat-widget">
+        <div id="chat-window" class="glass hidden">
+            <div id="chat-header">
+                <h3>🤖 WeatherBot</h3>
+                <button id="chat-close">✖</button>
+            </div>
+            <div id="chat-messages"></div>
+            <div id="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask 'Weather in Tokyo'...">
+                <button id="chat-send">Send</button>
+            </div>
+        </div>
+        <button id="chat-toggle" class="hover-btn primary-btn">💬 Chat with AI</button>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="/static/js/particles.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
