@@ -279,11 +279,18 @@ function loadRecentCitiesDropdown() {
 // ATMOSPHERE SATELLITE DATA LOADING (SCANNING API)
 // ==========================================================================
 
-function scanAtmosphere(city) {
+function scanAtmosphere(city, lat, lon) {
     // Show Skeletons / loader tags
     document.getElementById('city-name').innerText = "SCANNING ARRAY...";
     
-    fetch(`/api/weather?city=${encodeURIComponent(city)}`)
+    let url = '';
+    if (lat !== undefined && lon !== undefined && lat !== null && lon !== null) {
+        url = `/api/weather?lat=${lat}&lon=${lon}`;
+    } else {
+        url = `/api/weather?city=${encodeURIComponent(city)}`;
+    }
+    
+    fetch(url)
         .then(res => {
             if (!res.ok) throw new Error("Atmos scan target coordinate fault");
             return res.json();
@@ -295,7 +302,8 @@ function scanAtmosphere(city) {
         })
         .catch(err => {
             console.error(err);
-            document.getElementById('error-message-text').innerText = `Atmospheric scanner failed to parse coordinates for '${city}'. Satellite response code failed. Please verify spelling.`;
+            const displayCity = city || (lat !== undefined ? `${lat.toFixed(2)}, ${lon.toFixed(2)}` : 'Unknown');
+            document.getElementById('error-message-text').innerText = `Atmospheric scanner failed to parse coordinates for '${displayCity}'. Satellite response code failed. Please verify spelling.`;
             document.getElementById('error-screen').classList.remove('hidden');
             document.getElementById('city-name').innerText = "Coordinate Fault";
         });
@@ -303,6 +311,26 @@ function scanAtmosphere(city) {
 
 function autoLocateAtmosphere() {
     document.getElementById('city-name').innerText = "GPS SYNCING...";
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                scanAtmosphere(null, lat, lon);
+            },
+            (error) => {
+                console.warn("HTML5 Geolocation denied/failed, falling back to IP locator", error);
+                fallbackToIpLocation();
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+    } else {
+        fallbackToIpLocation();
+    }
+}
+
+function fallbackToIpLocation() {
     fetch('/api/weather-by-ip')
         .then(res => res.json())
         .then(data => {
@@ -310,7 +338,7 @@ function autoLocateAtmosphere() {
                 document.getElementById('city-input').value = data.city;
                 scanAtmosphere(data.city);
             } else {
-                scanAtmosphere('Paris'); // defaults to romantic hub
+                scanAtmosphere('Paris');
             }
         })
         .catch(() => {

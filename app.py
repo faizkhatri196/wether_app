@@ -53,6 +53,28 @@ def fetch_weather_internal(city):
     except Exception:
         return None
 
+def fetch_weather_by_coords_internal(lat, lon):
+    try:
+        # Get Current Weather
+        weather_url = f"{BASE_URL}/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+        weather_resp = requests.get(weather_url)
+        weather_data = weather_resp.json()
+
+        if weather_data.get("cod") != 200:
+            return None
+
+        # Get Forecast
+        forecast_url = f"{BASE_URL}/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+        forecast_resp = requests.get(forecast_url)
+        forecast_data = forecast_resp.json()
+
+        return {
+            "current": weather_data,
+            "forecast": forecast_data
+        }
+    except Exception:
+        return None
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -71,9 +93,16 @@ def get_city_suggestions():
     if len(query) < 2:
         return jsonify([])
     try:
-        url = f"{GEO_URL}?q={query}&limit=4&appid={API_KEY}"
+        url = f"{GEO_URL}?q={query}&limit=5&appid={API_KEY}"
         resp = requests.get(url).json()
-        suggestions = [f"{c['name']}, {c.get('country', '')}" for c in resp if 'name' in c]
+        suggestions = []
+        for c in resp:
+            if 'name' in c:
+                location_str = c['name']
+                if 'state' in c:
+                    location_str += f", {c['state']}"
+                location_str += f", {c.get('country', '')}"
+                suggestions.append(location_str)
         return jsonify(suggestions)
     except Exception as e:
         return jsonify([])
@@ -81,10 +110,16 @@ def get_city_suggestions():
 @app.route("/api/weather")
 def get_weather():
     city = request.args.get("city")
-    if not city:
-        return jsonify({"error": "City parameter missing"}), 400
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
 
-    data = fetch_weather_internal(city)
+    if lat and lon:
+        data = fetch_weather_by_coords_internal(lat, lon)
+    elif city:
+        data = fetch_weather_internal(city)
+    else:
+        return jsonify({"error": "Missing coordinates or city query"}), 400
+
     if not data:
         return jsonify({"error": "Target not acquired or city not found"}), 404
 
