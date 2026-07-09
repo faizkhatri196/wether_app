@@ -4,92 +4,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌎 Smart Weather App v5.0 - Ultra Advanced</title>
+    <title>⚡ AetherWeather AI - Next-Gen Weather Experience</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Consolas&family=Inter:wght@300;400;600;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700;800&family=Space+Grotesk:wght@300;400;600;700&family=Consolas&display=swap"
         rel="stylesheet">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="/static/css/style.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body id="app-body">
+<body id="app-body" class="theme-dynamic">
 
-    <!-- Background video/image container -->
-    <div id="sky-gradient"></div>
-    <div id="sky-elements">
-        <div id="sun" class="celestial hidden"></div>
-        <div id="moon" class="celestial hidden"></div>
+    <!-- Premium Loading Splash Screen -->
+    <div id="splash-loader" class="glass-splash">
+        <div class="splash-content">
+            <div class="logo-glow">
+                <i data-lucide="cloud-lightning" class="splash-logo"></i>
+            </div>
+            <h1 class="splash-title">AETHERWEATHER</h1>
+            <p class="splash-subtitle">Initializing AI Weather Satellite Network...</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill"></div>
+            </div>
+        </div>
     </div>
-    <div id="bg-layer" class="blend-mode-layer">
+
+    <!-- Onboarding Panel Overlay -->
+    <div id="onboarding-overlay" class="glass-overlay hidden">
+        <div class="onboarding-card glass border-pulse">
+            <i data-lucide="sparkles" class="neon-teal onboarding-icon"></i>
+            <h2>Welcome to AetherWeather</h2>
+            <p>Experience an award-winning, AI-powered weather satellite terminal. Allow location access to query your atmosphere in real-time, or chat with the AI assistant for custom clothing, travel, and lifestyle predictions.</p>
+            <div class="onboarding-actions">
+                <button id="onboarding-locate-btn" class="glow-btn-teal">📍 LOCATE ME</button>
+                <button id="onboarding-skip-btn" class="text-btn">SKIP & SEARCH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liquid Glass / Aurora Background System -->
+    <div id="sky-gradient" class="aurora-wrapper">
+        <div class="aurora-color aurora-1"></div>
+        <div class="aurora-color aurora-2"></div>
+        <div class="aurora-color aurora-3"></div>
+        <div class="aurora-color aurora-4"></div>
+    </div>
+    
+    <div id="bg-layer" class="noise-overlay">
         <canvas id="particle-canvas"></canvas>
-        <img id="bg-image" src="/icons/NIght (1).gif" alt="Background">
     </div>
 
-    <div class="wrapper">
-        <header class="top-bar glass">
-            <div id="time-display" class="time-label">01 January 2026 // 12:00:00</div>
-            <div class="search-frame" style="position: relative;">
-                <input type="text" id="city-input" placeholder="Enter or select city" autocomplete="off">
-                <ul id="custom-suggestions" class="dropdown hidden"></ul>
-                <button id="search-btn" class="hover-btn primary-btn">SEARCH</button>
-                <button id="location-btn" class="hover-btn icon-btn">📍</button>
+    <div class="dashboard-wrapper">
+        <!-- TOP NAVIGATION BAR -->
+        <header class="top-nav glass border-glow">
+            <div class="logo-section">
+                <i data-lucide="zap" class="neon-teal flex-shrink-0 animate-pulse"></i>
+                <span class="logo-text text-glow">AETHER<span class="light-font">WEATHER</span></span>
+            </div>
+            <div class="search-section">
+                <div class="search-bar-container">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="city-input" placeholder="Scan atmosphere (e.g. San Francisco, Tokyo)..." autocomplete="off">
+                    <ul id="custom-suggestions" class="dropdown hidden"></ul>
+                </div>
+                <button id="search-btn" class="glow-btn-blue"><i data-lucide="radar" class="btn-icon"></i> SCAN</button>
+                <button id="location-btn" class="icon-btn tooltip" data-tip="Auto Location"><i data-lucide="navigation"></i></button>
+                <button id="settings-toggle-btn" class="icon-btn tooltip" data-tip="Settings"><i data-lucide="sliders"></i></button>
+            </div>
+            <div class="nav-right">
+                <div id="time-display" class="time-label">01 January 2026 // 12:00:00</div>
             </div>
         </header>
 
-        <main class="main-container">
-            <div id="left-panel" class="panel glass sliding-panel slide-down">
-                <div class="panel-inner">
-                    <h1 id="city-name" class="glow-text">Awaiting Interface...</h1>
-                    <div id="temperature" class="temp-display">--°</div>
-                    <div id="description" class="desc-text">Please initiate search scan</div>
-
-                    <div class="details-box">
-                        <pre id="details-text" class="mono-text">
-THERMAL SENS:    --°C
-ATMOS HUMIDITY:  --%
-WIND VELOCITY:   -- m/s
-BARO PRESSURE:   -- hPa
-VISIBILITY:      -- km
-
-ASTRAL DAWN:     --:-- --
-ASTRAL DUSK:     --:-- --
-                        </pre>
+        <!-- THREE COLUMN GRID DASHBOARD -->
+        <main class="main-dashboard-grid">
+            
+            <!-- LEFT COLUMN: HERO WEATHER & DETAILED METRICS -->
+            <section class="dash-column left-column">
+                
+                <!-- HERO WEATHER CARD -->
+                <div id="hero-card" class="panel glass hover-float border-glow">
+                    <div class="panel-header">
+                        <div class="location-container">
+                            <i data-lucide="map-pin" class="neon-teal"></i>
+                            <h2 id="city-name" class="city-text">Awaiting Scan...</h2>
+                        </div>
+                        <span id="current-date-tag" class="date-tag">Today</span>
+                    </div>
+                    
+                    <div class="hero-body">
+                        <!-- Animated Weather SVG Sticker Injection Container -->
+                        <div id="weather-sticker-container">
+                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                                <g stroke="#00E5FF" stroke-width="2" fill="none" stroke-linecap="round">
+                                    <circle cx="50" cy="50" r="15" class="animate-spin" style="animation-duration: 8s" />
+                                    <line x1="50" y1="20" x2="50" y2="30" />
+                                    <line x1="50" y1="70" x2="50" y2="80" />
+                                    <line x1="20" y1="50" x2="30" y2="50" />
+                                    <line x1="70" y1="50" x2="80" y2="50" />
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="temperature-container">
+                            <span id="temperature" class="temp-display text-glow">--</span>
+                            <span class="temp-degree-symbol">°</span>
+                        </div>
+                        <div id="description" class="weather-desc">Initializing satellite connection...</div>
                     </div>
                 </div>
-            </div>
 
-            <div id="right-panel" class="panel glass sliding-panel slide-down">
-                <div class="panel-inner chart-inner">
-                    <h2 class="chart-title glow-text tracking">T R E N D A N A L Y S I S</h2>
-                    <div class="canvas-container">
+                <!-- DETAILED METRICS GRID -->
+                <div id="detailed-metrics" class="metrics-grid">
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="thermometer" class="neon-orange"></i>
+                            <span>THERMAL SENSE</span>
+                        </div>
+                        <div id="feels-like-val" class="metric-value">--°</div>
+                        <div class="metric-footer">Feels like temperature</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="droplets" class="neon-blue"></i>
+                            <span>HUMIDITY</span>
+                        </div>
+                        <div id="humidity-val" class="metric-value">--%</div>
+                        <div class="metric-footer">Atmos moisture content</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="wind" class="neon-teal"></i>
+                            <span>WIND VELOCITY</span>
+                        </div>
+                        <div id="wind-val" class="metric-value">-- m/s</div>
+                        <div id="wind-dir-val" class="metric-footer">Direction: --</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="gauge" class="neon-pink"></i>
+                            <span>BARO PRESSURE</span>
+                        </div>
+                        <div id="pressure-val" class="metric-value">---- hPa</div>
+                        <div class="metric-footer">Sea level force</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="eye" class="neon-cyan"></i>
+                            <span>VISIBILITY</span>
+                        </div>
+                        <div id="visibility-val" class="metric-value">-- km</div>
+                        <div class="metric-footer">Aerosol depth visual limit</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="sun" class="neon-yellow"></i>
+                            <span>UV INDEX</span>
+                        </div>
+                        <div id="uv-val" class="metric-value">--</div>
+                        <div id="uv-desc" class="metric-footer">Solar radiation level</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="activity" class="neon-green"></i>
+                            <span>AIR QUALITY</span>
+                        </div>
+                        <div id="aqi-val" class="metric-value">--</div>
+                        <div id="aqi-desc" class="metric-footer">Particulate loading index</div>
+                    </div>
+                    <div class="metric-card glass hover-lift">
+                        <div class="metric-header">
+                            <i data-lucide="moon" class="neon-purple"></i>
+                            <span>MOON PHASE</span>
+                        </div>
+                        <div id="moonphase-val" class="metric-value">--</div>
+                        <div id="moon-illumination" class="metric-footer">Illumination: --</div>
+                    </div>
+                </div>
+
+                <!-- ASTRAL TRANSITS CARD -->
+                <div class="panel glass hover-float transit-card">
+                    <h3><i data-lucide="sunset" class="neon-purple inline-icon"></i> Celestial Sun Transits</h3>
+                    <div class="transit-container">
+                        <div class="transit-item">
+                            <i data-lucide="sunrise" class="neon-yellow"></i>
+                            <div>
+                                <span class="transit-label">ASTRAL DAWN</span>
+                                <span id="sunrise-time" class="transit-time">--:-- --</span>
+                            </div>
+                        </div>
+                        <div class="transit-divider">
+                            <div class="transit-arc"></div>
+                        </div>
+                        <div class="transit-item">
+                            <i data-lucide="sunset" class="neon-orange"></i>
+                            <div>
+                                <span class="transit-label">ASTRAL DUSK</span>
+                                <span id="sunset-time" class="transit-time">--:-- --</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MIDDLE COLUMN: FORECASTS, RADAR MAP, & ANALYTICS -->
+            <section class="dash-column middle-column">
+                
+                <!-- APPLE WEATHER INSPIRED HOURLY TIMELINE -->
+                <div class="panel glass hover-float">
+                    <div class="panel-title-container">
+                        <h3><i data-lucide="clock" class="neon-teal"></i> Hourly Atmosphere Timeline</h3>
+                        <span class="sub-label">Scroll to view solar transits</span>
+                    </div>
+                    <div class="hourly-scroll-container">
+                        <div id="hourly-timeline-grid" class="hourly-timeline">
+                            <!-- Injected programmatically by main.js -->
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                            <div class="skeleton-shimmer hourly-skeleton"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable 7-DAY FORECAST -->
+                <div class="panel glass hover-float">
+                    <h3><i data-lucide="calendar" class="neon-blue"></i> 7-Day Precision Forecast</h3>
+                    <div id="daily-forecast-container" class="daily-forecast-list">
+                        <!-- Injected programmatically by main.js with expandable drawer details -->
+                        <div class="skeleton-shimmer daily-skeleton"></div>
+                        <div class="skeleton-shimmer daily-skeleton"></div>
+                        <div class="skeleton-shimmer daily-skeleton"></div>
+                        <div class="skeleton-shimmer daily-skeleton"></div>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE SATELLITE MAP RADAR -->
+                <div class="panel glass hover-float">
+                    <div class="panel-header map-header">
+                        <h3><i data-lucide="globe" class="neon-teal"></i> Atmospheric Radar Satellite</h3>
+                        <div class="map-controls">
+                            <button id="map-layer-temp" class="map-btn active">Temperature</button>
+                            <button id="map-layer-clouds" class="map-btn">Clouds</button>
+                            <button id="map-layer-precipitation" class="map-btn">Radar</button>
+                            <button id="map-layer-wind" class="map-btn">Wind</button>
+                        </div>
+                    </div>
+                    <div class="map-container-wrapper">
+                        <div id="map-radar"></div>
+                    </div>
+                </div>
+
+                <!-- ADVANCED ANALYTICS CHART PANEL -->
+                <div class="panel glass hover-float">
+                    <div class="panel-header analytics-header">
+                        <h3><i data-lucide="area-chart" class="neon-pink"></i> Atmosphere Trend Analytics</h3>
+                        <div class="analytics-tabs">
+                            <button id="chart-tab-temp" class="chart-tab active">Temp</button>
+                            <button id="chart-tab-humid" class="chart-tab">Humidity</button>
+                            <button id="chart-tab-wind" class="chart-tab">Wind</button>
+                            <button id="chart-tab-pressure" class="chart-tab">Pressure</button>
+                        </div>
+                    </div>
+                    <div class="analytics-chart-container">
                         <canvas id="trendChart"></canvas>
                     </div>
                 </div>
-            </div>
+
+                <!-- NEXT WEEK PREDICTION INDICES -->
+                <div class="panel glass hover-float">
+                    <h3><i data-lucide="sparkles" class="neon-green"></i> Lifestyle Comfort Index Predictions</h3>
+                    <div class="predictions-grid">
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="dumbbell"></i>
+                                <span>WORKOUT</span>
+                            </div>
+                            <span id="score-workout" class="pill-score">--</span>
+                        </div>
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="plane"></i>
+                                <span>TRAVEL</span>
+                            </div>
+                            <span id="score-travel" class="pill-score">--</span>
+                        </div>
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="flower"></i>
+                                <span>OUTDOORS</span>
+                            </div>
+                            <span id="score-outdoors" class="pill-score">--</span>
+                        </div>
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="sprout"></i>
+                                <span>FARMING</span>
+                            </div>
+                            <span id="score-farming" class="pill-score">--</span>
+                        </div>
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="smile"></i>
+                                <span>SKIN CARE</span>
+                            </div>
+                            <span id="score-skincare" class="pill-score">--</span>
+                        </div>
+                        <div class="prediction-pill">
+                            <div class="pill-header">
+                                <i data-lucide="cup-water"></i>
+                                <span>HYDRATION</span>
+                            </div>
+                            <span id="score-hydration" class="pill-score">--</span>
+                        </div>
+                    </div>
+                    <div class="ai-prediction-card glass border-pulse">
+                        <div class="ai-header">
+                            <i data-lucide="brain-circuit" class="neon-teal"></i>
+                            <span>AI WEEKLY ATMOSPHERIC SYNOPSIS</span>
+                        </div>
+                        <p id="ai-prediction-text" class="ai-text">Perform a scan to query weather models and compile AI weekly comfort predictions...</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN: INTEGRATED AI WEATHER ASSISTANT -->
+            <section class="dash-column right-column">
+                
+                <div id="ai-assistant-panel" class="panel glass flex-column-layout border-glow">
+                    <div class="ai-chat-header">
+                        <div class="chat-status">
+                            <div class="status-pulse-dot"></div>
+                            <h3>🤖 AETHERAI ASSISTANT</h3>
+                        </div>
+                        <button id="clear-chat-btn" class="tooltip" data-tip="Clear Dialogue"><i data-lucide="trash-2"></i></button>
+                    </div>
+                    
+                    <!-- Chat dialogue list -->
+                    <div id="chat-messages" class="chat-dialogue">
+                        <!-- Message items injected programmatically -->
+                    </div>
+
+                    <!-- Chat typing bubble -->
+                    <div id="chat-typing-indicator" class="hidden">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+
+                    <!-- Suggestion Chips -->
+                    <div class="chat-suggestions">
+                        <button class="suggest-chip">Can I play cricket today?</button>
+                        <button class="suggest-chip">Should I carry an umbrella tomorrow?</button>
+                        <button class="suggest-chip">Best clothing for Tokyo this weekend?</button>
+                        <button class="suggest-chip">Is pollution high?</button>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div id="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Query atmospheric intelligence (e.g. 'Can I go jogging?')..." autocomplete="off">
+                        <button id="chat-send" class="chat-send-btn"><i data-lucide="send"></i></button>
+                    </div>
+                </div>
+
+                <!-- USER SETTINGS FLIDE PANEL -->
+                <div id="settings-panel" class="panel glass settings-drawer hidden">
+                    <div class="drawer-header">
+                        <h3><i data-lucide="settings" class="neon-teal"></i> Terminal Settings</h3>
+                        <button id="settings-close-btn" class="icon-btn"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="settings-body">
+                        <div class="setting-item">
+                            <span class="setting-label">Temperature Unit</span>
+                            <div class="toggle-switch">
+                                <button id="unit-c-btn" class="toggle-btn active">°C</button>
+                                <button id="unit-f-btn" class="toggle-btn">°F</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Wind Velocity Unit</span>
+                            <div class="toggle-switch">
+                                <button id="wind-ms-btn" class="toggle-btn active">m/s</button>
+                                <button id="wind-kmh-btn" class="toggle-btn">km/h</button>
+                                <button id="wind-mph-btn" class="toggle-btn">mph</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Atmospheric Aurora Gradient</span>
+                            <div class="toggle-switch">
+                                <button id="bg-dynamic-btn" class="toggle-btn active">Dynamic</button>
+                                <button id="bg-static-btn" class="toggle-btn">Static</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Animation Speed</span>
+                            <div class="toggle-switch">
+                                <button id="anim-fast-btn" class="toggle-btn">120 FPS</button>
+                                <button id="anim-normal-btn" class="toggle-btn active">60 FPS</button>
+                                <button id="anim-eco-btn" class="toggle-btn">Eco</button>
+                            </div>
+                        </div>
+                        <div class="setting-item border-top">
+                            <span class="setting-label">OpenWeather API Key Status</span>
+                            <span class="status-badge green"><i data-lucide="check-circle-2"></i> ONLINE</span>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Groq AI Node Status</span>
+                            <span class="status-badge green"><i data-lucide="check-circle-2"></i> ONLINE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT SCANS LIST -->
+                <div class="panel glass hover-float">
+                    <h3><i data-lucide="history" class="neon-blue"></i> Recent Atmospheric Scans</h3>
+                    <div id="recent-scans-list" class="scans-list">
+                        <!-- Injected programmatically by main.js -->
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
-    <!-- WeatherBot Chat Widget -->
-    <div id="chat-widget">
-        <div id="chat-window" class="glass hidden">
-            <div id="chat-header">
-                <h3>🤖 WeatherBot</h3>
-                <button id="chat-close">✖</button>
-            </div>
-            <div id="chat-messages"></div>
-            <div id="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Ask 'Weather in Tokyo'...">
-                <button id="chat-send">Send</button>
+    <!-- ERROR & RETRY SCREEN OVERLAY -->
+    <div id="error-screen" class="glass-overlay hidden">
+        <div class="error-card glass border-pulse">
+            <i data-lucide="wifi-off" class="neon-pink error-icon animate-bounce"></i>
+            <h2>Atmospheric Scan Failed</h2>
+            <p id="error-message-text">Unable to acquire connection to weather satellite array or the specified target city coordinates could not be resolved.</p>
+            <div class="error-actions">
+                <button id="error-retry-btn" class="glow-btn-pink">🔁 RETRY SCAN</button>
+                <button id="error-close-btn" class="text-btn">DISMISS</button>
             </div>
         </div>
-        <button id="chat-toggle" class="hover-btn primary-btn">💬 Chat with AI</button>
     </div>
 
-    <!-- Main JavaScript -->
+    <!-- Scripts -->
     <script src="/static/js/particles.js"></script>
     <script src="/static/js/main.js"></script>
+    <script>
+        // Initialize Lucide icons on DOM render
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
+    </script>
 </body>
 
 </html>

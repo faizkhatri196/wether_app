@@ -88,6 +88,12 @@ class Particle {
 }
 
 let isNightMode = false;
+let maxParticles = 150;
+
+window.setParticleCount = function(count) {
+    maxParticles = count;
+    window.setParticleWeather(currentMode, isNightMode);
+};
 
 window.setParticleWeather = function(weatherMain, isNight) {
     isNightMode = isNight;
@@ -98,10 +104,9 @@ window.setParticleWeather = function(weatherMain, isNight) {
     else currentMode = 'clear';
 
     // Set particle count
-    let count = 0;
-    if (currentMode === 'rain') count = 250;
-    else if (currentMode === 'snow') count = 150;
-    else count = 150; // Stars
+    let count = maxParticles;
+    if (currentMode === 'rain' && maxParticles > 0) count = Math.round(maxParticles * 1.6);
+    else if (maxParticles === 0) count = 0;
 
     particles = [];
     for (let i = 0; i < count; i++) {
