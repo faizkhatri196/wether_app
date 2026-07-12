@@ -952,13 +952,20 @@ function updateAnalyticsChart(forecast, tabId) {
     // Read first 16 slots (48 Hours Trend)
     const list = forecast.list.slice(0, 16);
 
+    let lastDay = '';
     list.forEach(item => {
         const date = new Date(item.dt * 1000);
         const hours = date.getHours();
         const ampm = hours >= 12 ? 'pm' : 'am';
         const displayHour = hours % 12 || 12;
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-        const timeStr = `${dayName} ${displayHour}${ampm}`;
+        
+        let timeStr = `${displayHour}${ampm}`;
+        // If it is the first point or day changes, prefix with Day Name (e.g., "Sun 3pm")
+        if (!lastDay || dayName !== lastDay) {
+            timeStr = `${dayName} ${displayHour}${ampm}`;
+            lastDay = dayName;
+        }
         labels.push(timeStr);
 
         if (tabId === 'chart-tab-temp') {
@@ -1021,7 +1028,7 @@ function updateAnalyticsChart(forecast, tabId) {
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    bottom: window.innerWidth <= 768 ? 15 : 25,
+                    bottom: 30, // Taller layout padding to ensure x-axis ticks never clip
                     left: 10,
                     right: 15,
                     top: 10
