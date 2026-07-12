@@ -365,6 +365,8 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 16px 32px;
+    position: relative;
+    z-index: 2001; /* Layer suggestions dropdown above maps and graphs */
 }
 
 .logo-section {
@@ -1744,8 +1746,66 @@ input[type="text"]#city-input:focus {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN SYSTEM
+   RESPONSIVE DESIGN SYSTEM & SUGGESTION BAR
    ========================================================================== */
+
+/* Autocomplete suggestion dropdown positioning & styles */
+.search-bar-container {
+    position: relative;
+    flex: 1;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    max-height: 280px;
+    overflow-y: auto;
+    background: rgba(12, 14, 28, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.08);
+    z-index: 1000;
+    padding: 8px 0;
+    list-style: none;
+    margin: 0;
+}
+
+.dropdown li {
+    padding: 12px 18px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: #E2E8F0;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.dropdown li:last-child {
+    border-bottom: none;
+}
+
+.dropdown li:hover {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--neon-teal);
+    padding-left: 22px;
+}
+
+.dropdown li.suggestions-header {
+    background: transparent !important;
+    cursor: default;
+    pointer-events: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 18px;
+}
+
+/* Mobile Navigation Bar hidden on desktop */
+.mobile-tab-nav {
+    display: none;
+}
 
 @media (max-width: 1200px) {
     .main-dashboard-grid {
@@ -1761,35 +1821,265 @@ input[type="text"]#city-input:focus {
 }
 
 @media (max-width: 768px) {
+    /* Hide dashboard columns on mobile unless active */
+    .dash-column.left-column,
+    .dash-column.middle-column,
+    .dash-column.right-column {
+        display: none;
+    }
+
+    .dash-column.mobile-active {
+        display: flex !important;
+        animation: fade-in-column 0.4s ease-out;
+    }
+
+    @keyframes fade-in-column {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dashboard-wrapper {
+        padding-bottom: 100px !important;
+        margin: 10px auto;
+        width: 92%;
+    }
+
     .top-nav {
         flex-direction: column;
         gap: 15px;
-        padding: 15px;
+        padding: 16px 20px;
+        border-radius: 20px;
     }
-    .search-section {
+
+    .logo-section {
         width: 100%;
         justify-content: center;
     }
+
+    .search-section {
+        width: 100%;
+        gap: 8px;
+    }
+
     input[type="text"]#city-input {
         width: 100%;
     }
     input[type="text"]#city-input:focus {
         width: 100%;
     }
-    .metrics-grid {
-        grid-template-columns: 1fr;
+
+    /* Fixed Glassmorphic Mobile Tab Navigation Bar */
+    .mobile-tab-nav {
+        display: flex;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 420px;
+        height: 65px;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 10px;
+        z-index: 2000;
+        background: rgba(10, 11, 18, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 30px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
     }
+
+    .mobile-tab-btn {
+        background: transparent;
+        border: none;
+        color: #8C92A6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    .mobile-tab-btn i {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .mobile-tab-btn span {
+        font-family: var(--font-heading);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .mobile-tab-btn:hover {
+        color: #FFF;
+    }
+
+    .mobile-tab-btn.active {
+        color: var(--neon-teal);
+        background: rgba(0, 229, 255, 0.08);
+    }
+
+    .mobile-tab-btn.active i {
+        transform: translateY(-2px);
+        color: var(--neon-teal);
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px;
+    }
+
     .daily-card-main {
         grid-template-columns: 80px 40px 1fr 50px 24px;
-        padding: 12px;
+        padding: 12px 16px;
     }
+
     .drawer-timelines {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
+
     .drawer-details-grid {
         grid-template-columns: 1fr;
     }
+
     .predictions-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    /* Avoid title/tabs overlapping in Map and Analytics headers */
+    .panel-header, .analytics-header, .map-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .map-controls, .analytics-tabs {
+        width: 100%;
+        justify-content: space-between;
+        display: flex;
+    }
+    .map-btn, .chart-tab {
+        flex: 1;
+        text-align: center;
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-text {
+        display: none;
+    }
+    .glow-btn-blue {
+        padding: 12px !important;
+    }
+    .search-section {
+        gap: 6px;
+    }
+    .metric-card {
+        padding: 12px;
+        height: 110px;
+    }
+    .metric-header {
+        font-size: 0.65rem;
+        gap: 6px;
+    }
+    .metric-value {
+        font-size: 1.3rem;
+        margin: 4px 0;
+    }
+    .metric-footer {
+        font-size: 0.65rem;
+    }
+    .city-text {
+        font-size: 1.2rem;
+    }
+    .temp-display {
+        font-size: 4.5rem;
+    }
+
+    /* 2-Row Layout on Forecast card for narrow mobile viewports to prevent cuts */
+    .daily-card-main {
+        display: grid !important;
+        grid-template-areas: 
+            "day sticker pop arrow"
+            "bar bar bar bar" !important;
+        grid-template-columns: 1.2fr auto auto auto !important;
+        gap: 10px 12px !important;
+        padding: 14px 16px !important;
+    }
+
+    .daily-day-name {
+        grid-area: day;
+        align-self: center;
+        font-size: 0.95rem;
+    }
+
+    .daily-sticker {
+        grid-area: sticker;
+        align-self: center;
+        width: 30px;
+        height: 30px;
+    }
+
+    .daily-pop-info {
+        grid-area: pop;
+        align-self: center;
+        font-size: 0.75rem;
+    }
+
+    .daily-expand-arrow {
+        grid-area: arrow;
+        align-self: center;
+    }
+
+    .daily-bar-container {
+        grid-area: bar;
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .drawer-metrics-card {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+
+    .prediction-pill {
+        padding: 8px 4px;
+    }
+
+    .pill-header span {
+        font-size: 0.55rem;
+        letter-spacing: 0px;
+    }
+
+    .pill-score {
+        font-size: 1.1rem;
+        margin-top: 6px;
+    }
+
+    .transit-label {
+        font-size: 0.55rem;
+    }
+
+    .transit-time {
+        font-size: 0.8rem;
+    }
+
+    .map-container-wrapper {
+        height: 280px;
+    }
+
+    .analytics-chart-container {
+        height: 220px;
     }
 }

@@ -74,7 +74,7 @@
                     <input type="text" id="city-input" placeholder="Scan atmosphere (e.g. San Francisco, Tokyo)..." autocomplete="off">
                     <ul id="custom-suggestions" class="dropdown hidden"></ul>
                 </div>
-                <button id="search-btn" class="glow-btn-blue"><i data-lucide="radar" class="btn-icon"></i> SCAN</button>
+                <button id="search-btn" class="glow-btn-blue"><i data-lucide="radar" class="btn-icon"></i> <span class="btn-text">SCAN</span></button>
                 <button id="location-btn" class="icon-btn tooltip" data-tip="Auto Location"><i data-lucide="navigation"></i></button>
                 <button id="settings-toggle-btn" class="icon-btn tooltip" data-tip="Settings"><i data-lucide="sliders"></i></button>
             </div>
@@ -433,7 +433,24 @@
                 </div>
             </section>
         </main>
+        
+        <!-- MOBILE TAB NAVIGATION BAR -->
+        <div class="mobile-tab-nav glass border-glow">
+            <button class="mobile-tab-btn active" data-tab="current">
+                <i data-lucide="map-pin"></i>
+                <span>Current</span>
+            </button>
+            <button class="mobile-tab-btn" data-tab="forecast">
+                <i data-lucide="calendar"></i>
+                <span>Forecast</span>
+            </button>
+            <button class="mobile-tab-btn" data-tab="ai-chat">
+                <i data-lucide="brain-circuit"></i>
+                <span>AI Chat</span>
+            </button>
+        </div>
     </div>
+
 
     <!-- ERROR & RETRY SCREEN OVERLAY -->
     <div id="error-screen" class="glass-overlay hidden">

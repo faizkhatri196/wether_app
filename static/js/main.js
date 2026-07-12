@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         dropdown.classList.remove('hidden');
                         list.forEach(city => {
                             const li = document.createElement('li');
-                            li.innerText = city;
+                            li.innerHTML = `<i data-lucide="map-pin" class="inline-icon" style="width:14px;height:14px;color:var(--neon-teal);margin-right:8px;vertical-align:middle;"></i> <span style="vertical-align:middle;">${city}</span>`;
                             li.addEventListener('click', () => {
                                 cityInput.value = city;
                                 dropdown.classList.add('hidden');
@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                             dropdown.appendChild(li);
                         });
+                        lucide.createIcons();
                     } else {
                         dropdown.classList.add('hidden');
                     }
@@ -126,6 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize AI Chat Assistant
     initChatbot();
+
+    // Initialize Mobile Tabbed Navigation
+    initMobileTabs();
 
     // Setup Error Retry
     document.getElementById('error-retry-btn').addEventListener('click', () => {
@@ -257,13 +261,14 @@ function loadRecentCitiesDropdown() {
                 
                 // Add a header
                 const header = document.createElement('li');
-                header.innerHTML = '<span style="font-size:0.75rem; color:#6C7284; font-weight:700; letter-spacing:1px">RECENT Atmospheric SCANS</span>';
+                header.className = 'suggestions-header';
+                header.innerHTML = '<span style="font-size:0.75rem; color:#6C7284; font-weight:700; letter-spacing:1.5px;">RECENT ATMOSPHERIC SCANS</span>';
                 header.style.pointerEvents = 'none';
                 dropdown.appendChild(header);
 
                 cities.forEach(city => {
                     const li = document.createElement('li');
-                    li.innerText = city;
+                    li.innerHTML = `<i data-lucide="history" class="inline-icon" style="width:14px;height:14px;color:var(--neon-blue);margin-right:8px;vertical-align:middle;"></i> <span style="vertical-align:middle;">${city}</span>`;
                     li.addEventListener('click', () => {
                         document.getElementById('city-input').value = city;
                         dropdown.classList.add('hidden');
@@ -271,6 +276,7 @@ function loadRecentCitiesDropdown() {
                     });
                     dropdown.appendChild(li);
                 });
+                lucide.createIcons();
             }
         });
 }
@@ -948,7 +954,11 @@ function updateAnalyticsChart(forecast, tabId) {
 
     list.forEach(item => {
         const date = new Date(item.dt * 1000);
-        const timeStr = date.toLocaleTimeString('en-US', { weekday: 'short', hour: '2-digit', hour12: false });
+        const hours = date.getHours();
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        const displayHour = hours % 12 || 12;
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const timeStr = `${dayName} ${displayHour}${ampm}`;
         labels.push(timeStr);
 
         if (tabId === 'chart-tab-temp') {
@@ -1009,6 +1019,14 @@ function updateAnalyticsChart(forecast, tabId) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    bottom: window.innerWidth <= 768 ? 15 : 25,
+                    left: 10,
+                    right: 15,
+                    top: 10
+                }
+            },
             animation: {
                 duration: 1500,
                 easing: 'easeOutQuart'
@@ -1030,8 +1048,8 @@ function updateAnalyticsChart(forecast, tabId) {
                     },
                     ticks: {
                         color: '#8C92A6',
-                        maxRotation: 45,
-                        minRotation: 45,
+                        maxRotation: window.innerWidth <= 768 ? 0 : 45,
+                        minRotation: window.innerWidth <= 768 ? 0 : 45,
                         font: { family: 'Space Grotesk', size: 10 }
                     }
                 }
@@ -1292,4 +1310,78 @@ function updateTime() {
     const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
     document.getElementById('time-display').innerText = `${dateStr}  //  ${timeStr}`;
+}
+
+// ==========================================================================
+// MOBILE TAB NAVIGATION SYSTEM
+// ==========================================================================
+function initMobileTabs() {
+    const tabBtns = document.querySelectorAll('.mobile-tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-tab');
+            switchMobileTab(tab);
+        });
+    });
+
+    // Set default active tab on initial mobile load
+    if (window.innerWidth <= 768) {
+        switchMobileTab('current');
+    }
+
+    // Handle resizing between mobile and desktop sizes
+    window.addEventListener('resize', () => {
+        const leftCol = document.querySelector('.dash-column.left-column');
+        const middleCol = document.querySelector('.dash-column.middle-column');
+        const rightCol = document.querySelector('.dash-column.right-column');
+        
+        if (window.innerWidth > 768) {
+            // Restore visibility for desktop columns
+            if (leftCol) leftCol.classList.remove('mobile-active');
+            if (middleCol) middleCol.classList.remove('mobile-active');
+            if (rightCol) rightCol.classList.remove('mobile-active');
+        } else {
+            // If resizing down to mobile, ensure active tab column is shown
+            const activeTabBtn = document.querySelector('.mobile-tab-btn.active');
+            if (activeTabBtn) {
+                const tab = activeTabBtn.getAttribute('data-tab');
+                switchMobileTab(tab);
+            } else {
+                switchMobileTab('current');
+            }
+        }
+    });
+}
+
+function switchMobileTab(tab) {
+    const tabBtns = document.querySelectorAll('.mobile-tab-btn');
+    const leftCol = document.querySelector('.dash-column.left-column');
+    const middleCol = document.querySelector('.dash-column.middle-column');
+    const rightCol = document.querySelector('.dash-column.right-column');
+
+    tabBtns.forEach(btn => {
+        if (btn.getAttribute('data-tab') === tab) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    if (leftCol) leftCol.classList.remove('mobile-active');
+    if (middleCol) middleCol.classList.remove('mobile-active');
+    if (rightCol) rightCol.classList.remove('mobile-active');
+
+    if (tab === 'current' && leftCol) {
+        leftCol.classList.add('mobile-active');
+    } else if (tab === 'forecast' && middleCol) {
+        middleCol.classList.add('mobile-active');
+        // Fix Leaflet map sizing issue when rendering inside a toggled flex element
+        if (radarMap) {
+            setTimeout(() => {
+                radarMap.invalidateSize();
+            }, 300);
+        }
+    } else if (tab === 'ai-chat' && rightCol) {
+        rightCol.classList.add('mobile-active');
+    }
 }
